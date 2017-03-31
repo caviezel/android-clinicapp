@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_weight="0.5"
+        android:layout_height="0dp">
+
+        <Button
+            android:id="@+id/btn_close"
+            android:background="@android:drawable/ic_menu_close_clear_cancel"
+            android:layout_gravity="right"
+            android:backgroundTint="@color/colorPrimary"
+            android:layout_width="50dp"
+            android:layout_height="50dp" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1.2">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:adjustViewBounds="true"
+            app:srcCompat="@android:drawable/ic_menu_my_calendar" />
+    </FrameLayout>
+
+    <TextView
+        android:text="Jack, we've got you confirmed for the appointment."
+        android:layout_width="match_parent"
+        android:id="@+id/txt_appt_conf_name"
+        android:textSize="18sp"
+        android:textAlignment="gravity"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:textColor="?attr/colorControlNormal"
+        android:gravity="center_vertical|center" />
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.3">
+
+        <TextView
+            android:text="3:20 PM"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/txt_appt_conf_hour"
+            android:layout_weight="4.5"
+            android:textAlignment="textEnd"
+            android:textSize="18sp"
+            android:gravity="center_vertical"
+            android:textColor="@android:color/black" />
+
+        <TextView
+            android:text="|"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textAlignment="center"
+            android:textSize="24sp"
+            android:gravity="center_vertical" />
+
+        <TextView
+            android:text="Dr. Smith"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/txt_appt_conf_dr"
+            android:layout_weight="4.5"
+            android:textAlignment="textStart"
+            android:textSize="18sp"
+            android:gravity="center_vertical"
+            android:textColor="@android:color/black" />
+    </LinearLayout>
+
+    <TextView
+        android:text="FRIDAY, JAN 30, 2017"
+        android:layout_width="match_parent"
+        android:id="@+id/txt_appt_conf_date"
+        android:textAlignment="gravity"
+        android:layout_height="0dp"
+        android:layout_weight="0.5"
+        android:gravity="center"
+        android:textColor="@android:color/darker_gray" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="2">
+
+        <Button
+            android:text="My Appointments"
+            android:layout_width="match_parent"
+            android:id="@+id/btn_confirm_appt"
+            android:background="@drawable/border_textfield_blue"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:textColor="@color/colorPrimary"
+            android:layout_height="45dp"
+            android:layout_gravity="bottom"
+            android:layout_marginBottom="5dp" />
+    </FrameLayout>
+</LinearLayout>

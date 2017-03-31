@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimary"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.8">
+
+            <TextView
+                android:id="@+id/txt_new_appt_title"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:fontFamily="sans-serif"
+                android:paddingTop="10dp"
+                android:text="New Appointment"
+                android:textAlignment="center"
+                android:textColor="@android:color/background_light"
+                android:textSize="24sp"
+                android:textStyle="normal|bold" />
+
+            <Button
+                android:id="@+id/btn_close"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="right"
+                android:background="@android:drawable/ic_menu_close_clear_cancel" />
+
+        </FrameLayout>
+
+        <Button
+            android:id="@+id/btn_select_doctor"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.6"
+            android:background="@android:drawable/editbox_background"
+            android:drawableRight="@android:drawable/ic_menu_more"
+            android:paddingLeft="20dp"
+            android:text="Select your doctor"
+            android:textAlignment="textStart"
+            android:textColor="@android:color/holo_blue_dark" />
+
+        <TextView
+            android:id="@+id/txt_preferred_date"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.6"
+            android:fontFamily="sans-serif"
+            android:paddingTop="17dp"
+            android:text="PREFERRED DATE AND TIME"
+            android:textAlignment="center"
+            android:textColor="@android:color/background_light"
+            android:textStyle="normal|bold" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.6"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btn_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="5"
+                android:background="@android:drawable/editbox_background"
+                android:drawableLeft="@android:drawable/ic_menu_my_calendar"
+                android:text="88/88/88"
+                android:textAlignment="center"
+                android:textColor="@android:color/holo_blue_light" />
+
+            <Button
+                android:id="@+id/btn_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="5"
+                android:background="@android:drawable/editbox_background"
+                android:drawableLeft="@android:drawable/ic_menu_recent_history"
+                android:text="9:00 am"
+                android:textColor="@android:color/holo_blue_light" />
+        </LinearLayout>
+
+        <CalendarView
+            android:id="@+id/calendar"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="4"
+            android:visibility="visible" />
+
+        <TimePicker
+            android:id="@+id/timepicker"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="4"
+            android:headerBackground="?attr/colorControlHighlight"
+            android:timePickerMode="spinner"
+            android:visibility="gone" />
+
+        <Button
+            android:id="@+id/btn_create_appt"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.6"
+            android:background="@android:drawable/editbox_background"
+            android:text="CREATE"
+            android:textColor="@android:color/holo_blue_light" />
+
+    </LinearLayout>
+
+</FrameLayout>
