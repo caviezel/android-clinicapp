@@ -1,4 +1,4 @@
-package mitrais.com.clinicapp.utils;
+package mitrais.com.common.utils;
 
 import android.annotation.SuppressLint;
 import android.widget.NumberPicker;

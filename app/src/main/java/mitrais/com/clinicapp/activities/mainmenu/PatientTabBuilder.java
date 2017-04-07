@@ -2,6 +2,8 @@ package mitrais.com.clinicapp.activities.mainmenu;
 
 import android.support.v4.app.Fragment;
 
+import mitrais.com.common.ui.ITabFragmentBuilder;
+
 /**
  * Created by mtmac20 on 4/6/17.
  */

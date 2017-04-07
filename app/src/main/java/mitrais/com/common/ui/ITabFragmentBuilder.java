@@ -1,4 +1,4 @@
-package mitrais.com.clinicapp.activities.mainmenu;
+package mitrais.com.common.ui;
 
 import android.support.v4.app.Fragment;
 

@@ -1,4 +1,4 @@
-package mitrais.com.clinicapp.activities.mainmenu;
+package mitrais.com.common.ui;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -15,30 +15,6 @@ import java.util.List;
 /**
  * Created by mtmac20 on 3/31/17.
  */
-
-interface ICommonListListener<T> {
-    void setListViewItem(View view, T item);
-    void onItemSelected(T item);
-}
-
-interface ICommonListView<T> {
-    View buildListItemView(View view, T item);
-}
-
-class CommonListAdapter<T> extends ArrayAdapter<T> {
-    private List<T> items;
-    private ICommonListView<T> listView;
-    public CommonListAdapter(Context context, int resource, List<T> theItems, ICommonListView<T> theListView) {
-        super(context, resource, theItems);
-        items = theItems;
-        listView = theListView;
-    }
-
-    @Override
-    public View getView(int pos, View convertView, ViewGroup parent) {
-        return listView.buildListItemView(convertView, items.get(pos));
-    }
-}
 
 public class CommonListView<T> implements ICommonListView<T> {
     private ListView listView;

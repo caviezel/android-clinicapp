@@ -1,4 +1,4 @@
-package mitrais.com.clinicapp.ui;
+package mitrais.com.common.ui;
 
 import android.view.View;
 import android.widget.Button;

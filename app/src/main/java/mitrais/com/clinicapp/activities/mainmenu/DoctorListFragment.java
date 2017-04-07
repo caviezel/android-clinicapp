@@ -16,6 +16,8 @@ import mitrais.com.clinicapp.R;
 import mitrais.com.clinicapp.rest.models.DoctorListModel;
 import mitrais.com.clinicapp.rest.models.DoctorModel;
 import mitrais.com.clinicapp.rest.services.WebServices;
+import mitrais.com.common.ui.CommonListView;
+import mitrais.com.common.ui.ICommonListListener;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;

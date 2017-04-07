@@ -19,7 +19,7 @@ import mitrais.com.clinicapp.R;
 import mitrais.com.clinicapp.rest.models.CoreModel;
 import mitrais.com.clinicapp.rest.models.StatusResponseModel;
 import mitrais.com.clinicapp.rest.services.WebServices;
-import mitrais.com.clinicapp.utils.TimePickerUtil;
+import mitrais.com.common.utils.TimePickerUtil;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;

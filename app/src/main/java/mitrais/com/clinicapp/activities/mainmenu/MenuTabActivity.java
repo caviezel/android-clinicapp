@@ -14,6 +14,7 @@ import android.view.MenuItem;
 import mitrais.com.clinicapp.R;
 import mitrais.com.clinicapp.rest.models.CoreModel;
 import mitrais.com.clinicapp.rest.models.CredentialsModel;
+import mitrais.com.common.ui.ITabFragmentBuilder;
 
 public class MenuTabActivity extends AppCompatActivity {
     private ITabFragmentBuilder tabFragmentBuilder;

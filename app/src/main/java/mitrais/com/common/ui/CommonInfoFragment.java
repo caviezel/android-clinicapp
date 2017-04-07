@@ -1,4 +1,4 @@
-package mitrais.com.clinicapp.activities.mainmenu;
+package mitrais.com.common.ui;
 
 import android.app.Dialog;
 import android.os.Bundle;
@@ -12,21 +12,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import mitrais.com.clinicapp.R;
-import mitrais.com.clinicapp.ui.CommonButton;
-import mitrais.com.clinicapp.ui.CommonButtonData;
 
 /**
  * Created by mtmac20 on 4/4/17.
  */
-
-interface ICommonInfoListener<T> {
-    void onBuildCommonInfo(T item, View view, ICommonInfoFragment fragment);
-    void onCloseCommonInfo();
-}
-
-interface ICommonInfoFragment {
-    void closeCommonInfo();
-}
 
 public class CommonInfoFragment<T> extends DialogFragment implements ICommonInfoFragment {
     ICommonInfoListener listener;
