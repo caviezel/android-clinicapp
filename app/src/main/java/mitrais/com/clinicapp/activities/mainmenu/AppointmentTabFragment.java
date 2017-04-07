@@ -6,11 +6,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ListView;
+import android.widget.TextView;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -25,24 +24,83 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class AppointmentTabFragment extends Fragment implements IAppointmentCreateListener, IAppointmentConfirmListener {
-    private ListView listView;
-    private AppointmentListAdapter adapter;
-    private ArrayList<AppointmentItem> arrayList;
+class AppointmentListItem {
+    String EditedPersonName;
+    String OriginPersonName;
+    String Date;
+    String Hour;
+    String Status;
+    public AppointmentListItem(String editedPersonName, String originPersonName, String date, String hour, String status) {
+        EditedPersonName = editedPersonName;
+        OriginPersonName = originPersonName;
+        Date = date;
+        Hour = hour;
+        Status = status;
+    }
+}
+
+public class AppointmentTabFragment extends Fragment implements IAppointmentCreateListener, IAppointmentConfirmListener, ICommonListListener<AppointmentListItem>, ICommonInfoListener<AppointmentListItem> {
+    private CommonListView<AppointmentListItem> listView;
+
+    //region ICommonInfoListener
+    public void onBuildCommonInfo(AppointmentListItem item, View view, ICommonInfoFragment fragment) {
+        BasicInfoBuilder infoBuilder = new BasicInfoBuilder(
+                view
+                , fragment
+                , R.drawable.borat_icon
+                , item.OriginPersonName
+                , item.Date + " | " + item.Hour
+        );
+    }
+    public void onCloseCommonInfo() {
+
+    }
+    //endregion
+
+    //region ICommonListListener
+    public void setListViewItem(View view, AppointmentListItem item) {
+        if (null != view) {
+            TextView tPatient = (TextView) view.findViewById(R.id.txt_person_name);
+            if (null != tPatient) {
+                tPatient.setText(item.EditedPersonName);
+            }
+            TextView tDate = (TextView) view.findViewById(R.id.txt_date);
+            if (null != tDate) {
+                tDate.setText(item.Date);
+            }
+            TextView tHour = (TextView) view.findViewById(R.id.txt_hour);
+            if (null != tHour) {
+                tHour.setText(item.Hour);
+            }
+            TextView tStatus = (TextView) view.findViewById(R.id.txt_status);
+            if (null != tStatus) {
+                tStatus.setText(item.Status);
+            }
+        }
+    }
+
+    public void onItemSelected(AppointmentListItem item) {
+        CommonInfoFragment infoFragment = new CommonInfoFragment();
+        infoFragment.setCommonInfoData(R.layout.popup_common_info, item)
+                .setCloseButton("OK")
+                .setListener(this);
+        infoFragment.show(getChildFragmentManager(), null);
+    }
+    //endregion
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_appointment_tab, container, false);
+        listView = new CommonListView(view
+                , getContext()
+                , R.id.list_common
+                , R.layout.appointment_list_item
+                , R.id.loading_list
+                , this);
 
-        //the appointment list
-        listView = (ListView) view.findViewById(R.id.list_appointment);
-        arrayList = new ArrayList<AppointmentItem>();
-        adapter = new AppointmentListAdapter(getContext(), R.layout.appointment_list_item, arrayList);
-        listView.setAdapter(adapter);
-
-        Button signInBtn = (Button) view.findViewById(R.id.btn_create_appointment);
-        signInBtn.setOnClickListener(
+        Button createApptBtn = (Button) view.findViewById(R.id.btn_create_appointment);
+        createApptBtn.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -50,6 +108,11 @@ public class AppointmentTabFragment extends Fragment implements IAppointmentCrea
                     }
                 }
         );
+
+        CredentialsModel credentials = CoreModel.getInstance().getLoginModel().Credentials;
+        createApptBtn.setVisibility(credentials.getRole() == CredentialsModel.eRole.DOCTOR ? View.GONE : View.VISIBLE);
+
+        doGetAppointmentList();
 
         return view;
     }
@@ -68,19 +131,27 @@ public class AppointmentTabFragment extends Fragment implements IAppointmentCrea
     }
 
     private void doGetAppointmentList() {
+        if (null == listView) {
+            return;
+        }
+
         WebServices services = new WebServices();
         final CredentialsModel credentials = CoreModel.getInstance().getLoginModel().Credentials;
         final CredentialsModel.eRole role = credentials.getRole();
         Call<AppointmentListModel> call;
         call = role == CredentialsModel.eRole.DOCTOR ? services.getServices().doGetAppointmentListDoctor(credentials.Id) :
                 services.getServices().doGetAppointmentListPatient(credentials.Id);
+
+        listView.beginRetrieveList();
+
         call.enqueue(new Callback<AppointmentListModel>() {
                          @Override
                          public void onResponse(Call<AppointmentListModel> call, Response<AppointmentListModel> response) {
                              if (response.body().Status) {
                                  CoreModel.getInstance().setAppointmentListModel(response.body());
                                  List<AppointmentModel> appts = CoreModel.getInstance().getAppointmentListModel().Appointment;
-                                 arrayList.clear();
+
+                                 listView.clearListView();
 
                                  //need to manually reverse the list
                                  for (int i = appts.size() - 1; i >= 0;--i) {
@@ -99,19 +170,22 @@ public class AppointmentTabFragment extends Fragment implements IAppointmentCrea
                                      String formattedHour = new SimpleDateFormat("h:mm a").format(originDate);
 
                                      title += person.Name;
-                                     arrayList.add(new AppointmentItem(
+
+                                     listView.addListItem(new AppointmentListItem(
                                              title
+                                             , person.Name
                                              , formattedDate
                                              , formattedHour
                                              , appts.get(i).Status
                                      ));
                                  }
-                                 adapter.notifyDataSetChanged();
                              }
+                             listView.endRetrieveList();
                          }
 
                          @Override
                          public void onFailure(Call<AppointmentListModel> call, Throwable t) {
+                             listView.endRetrieveList();
                          }
                      }
         );

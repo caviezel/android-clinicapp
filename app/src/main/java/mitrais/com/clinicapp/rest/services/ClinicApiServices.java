@@ -1,8 +1,10 @@
 package mitrais.com.clinicapp.rest.services;
 
 import mitrais.com.clinicapp.rest.models.AppointmentListModel;
+import mitrais.com.clinicapp.rest.models.ComplaintListModel;
 import mitrais.com.clinicapp.rest.models.DoctorListModel;
 import mitrais.com.clinicapp.rest.models.LoginModel;
+import mitrais.com.clinicapp.rest.models.MedicineListModel;
 import mitrais.com.clinicapp.rest.models.StatusResponseModel;
 import retrofit2.Call;
 import retrofit2.http.Field;
@@ -44,5 +46,13 @@ public interface ClinicApiServices {
             @Field("date") String date,
             @Field("patient_id") int patientId,
             @Field("doctor_id") int doctorId
+    );
+
+    @GET("medicine")
+    Call<MedicineListModel> doGetMedicines();
+
+    @GET("complaint-header/find-by-patient")
+    Call<ComplaintListModel> doGetComplaints(
+            @Query("id") int id
     );
 }

@@ -12,28 +12,21 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import mitrais.com.clinicapp.R;
+import mitrais.com.clinicapp.rest.models.CoreModel;
+import mitrais.com.clinicapp.rest.models.CredentialsModel;
 
 public class MenuTabActivity extends AppCompatActivity {
-
-    /**
-     * The {@link android.support.v4.view.PagerAdapter} that will provide
-     * fragments for each of the sections. We use a
-     * {@link FragmentPagerAdapter} derivative, which will keep every
-     * loaded fragment in memory. If this becomes too memory intensive, it
-     * may be best to switch to a
-     * {@link android.support.v4.app.FragmentStatePagerAdapter}.
-     */
+    private ITabFragmentBuilder tabFragmentBuilder;
     private SectionsPagerAdapter mSectionsPagerAdapter;
-
-    /**
-     * The {@link ViewPager} that will host the section contents.
-     */
     private ViewPager mViewPager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu_tab);
+
+        CredentialsModel credentials = CoreModel.getInstance().getLoginModel().Credentials;
+        tabFragmentBuilder = credentials.getRole() == CredentialsModel.eRole.DOCTOR ? new DoctorTabBuilder() : new PatientTabBuilder();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -71,10 +64,6 @@ public class MenuTabActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    /**
-     * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
-     * one of the sections/tabs/pages.
-     */
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
         public SectionsPagerAdapter(FragmentManager fm) {
@@ -83,31 +72,17 @@ public class MenuTabActivity extends AppCompatActivity {
 
         @Override
         public Fragment getItem(int position) {
-            switch (position) {
-                case 0:
-                    AppointmentTabFragment apptTab = new AppointmentTabFragment();
-                    return apptTab;
-                case 1:
-                    ProfileTabFragment profileTab = new ProfileTabFragment();
-                    return profileTab;
-            }
-            return null;
+            return tabFragmentBuilder.getTabFragment(position);
         }
 
         @Override
         public int getCount() {
-            return 2;
+            return tabFragmentBuilder.getTabCount();
         }
 
         @Override
         public CharSequence getPageTitle(int position) {
-            switch (position) {
-                case 0:
-                    return "APPOINTMENT";
-                case 1:
-                    return "PROFILE";
-            }
-            return null;
+            return tabFragmentBuilder.getTabTitle(position);
         }
     }
 }

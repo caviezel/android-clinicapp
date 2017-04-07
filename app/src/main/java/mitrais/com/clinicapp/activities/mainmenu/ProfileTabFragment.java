@@ -1,5 +1,6 @@
 package mitrais.com.clinicapp.activities.mainmenu;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -9,6 +10,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import mitrais.com.clinicapp.R;
+import mitrais.com.clinicapp.activities.login.LoginActivity;
 import mitrais.com.clinicapp.rest.models.CoreModel;
 import mitrais.com.clinicapp.rest.models.LoginModel;
 
@@ -33,8 +35,8 @@ public class ProfileTabFragment extends Fragment {
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-
-
+                        Intent i = new Intent(getActivity().getApplicationContext(),LoginActivity.class);
+                        getActivity().startActivity(i);
                     }
                 }
         );

@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorPrimary"
+    android:background="@drawable/border_textfield_blue"
     android:orientation="vertical">
 
     <LinearLayout
@@ -22,10 +22,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:fontFamily="sans-serif"
-                android:paddingTop="10dp"
-                android:text="New Appointment"
+                android:gravity="center"
+                android:text="NEW APPOINTMENT"
                 android:textAlignment="center"
-                android:textColor="@android:color/background_light"
+                android:textColor="@color/colorPrimaryDark"
                 android:textSize="24sp"
                 android:textStyle="normal|bold" />
 
@@ -34,7 +34,8 @@
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:layout_gravity="right"
-                android:background="@android:drawable/ic_menu_close_clear_cancel" />
+                android:background="@android:drawable/ic_menu_close_clear_cancel"
+                android:backgroundTint="@color/colorPrimaryDark" />
 
         </FrameLayout>
 
@@ -43,7 +44,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="0.6"
-            android:background="@android:drawable/editbox_background"
+            android:background="@drawable/border_textfield_blue"
             android:drawableRight="@android:drawable/ic_menu_more"
             android:paddingLeft="20dp"
             android:text="Select your doctor"
@@ -56,10 +57,10 @@
             android:layout_height="0dp"
             android:layout_weight="0.6"
             android:fontFamily="sans-serif"
-            android:paddingTop="17dp"
+            android:gravity="center"
             android:text="PREFERRED DATE AND TIME"
             android:textAlignment="center"
-            android:textColor="@android:color/background_light"
+            android:textColor="@color/colorPrimaryDark"
             android:textStyle="normal|bold" />
 
         <LinearLayout
@@ -70,10 +71,10 @@
 
             <Button
                 android:id="@+id/btn_date"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="5"
-                android:background="@android:drawable/editbox_background"
+                android:background="@drawable/border_textfield_blue"
                 android:drawableLeft="@android:drawable/ic_menu_my_calendar"
                 android:text="88/88/88"
                 android:textAlignment="center"
@@ -81,10 +82,10 @@
 
             <Button
                 android:id="@+id/btn_time"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="5"
-                android:background="@android:drawable/editbox_background"
+                android:background="@drawable/border_textfield_blue"
                 android:drawableLeft="@android:drawable/ic_menu_recent_history"
                 android:text="9:00 am"
                 android:textColor="@android:color/holo_blue_light" />
@@ -111,9 +112,11 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="0.6"
-            android:background="@android:drawable/editbox_background"
+            android:background="@color/colorPrimary"
             android:text="CREATE"
-            android:textColor="@android:color/holo_blue_light" />
+            android:textColor="@android:color/background_light"
+            android:textSize="18sp"
+            android:textStyle="bold" />
 
     </LinearLayout>
 

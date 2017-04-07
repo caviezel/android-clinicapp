@@ -6,9 +6,8 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.ListView;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,11 +24,40 @@ import retrofit2.Response;
  * Created by mtmac20 on 3/24/17.
  */
 
-public class DoctorListFragment extends DialogFragment {
-    private ListView listView;
-    private DoctorListAdapter adapter;
-    private ArrayList<DoctorItem> arrayList;
+interface IDoctorListListener {
+    void onDoctorItemSelected(DoctorListItem doctorItem);
+}
+
+class DoctorListItem {
+    String Id;
+    String Name;
+    public DoctorListItem(String id, String name) {
+        Id = id;
+        Name = name;
+    }
+}
+
+public class DoctorListFragment extends DialogFragment implements ICommonListListener<DoctorListItem> {
+    private CommonListView<DoctorListItem> listView;
     private List<IDoctorListListener> listeners = new ArrayList<IDoctorListListener>();
+
+    //region ICommonListListener
+    public void setListViewItem(View view, DoctorListItem item) {
+        if (null != view) {
+            TextView tName = (TextView) view.findViewById(R.id.txt_person_name);
+            if (null != tName) {
+                tName.setText(item.Name);
+            }
+        }
+    }
+
+    public void onItemSelected(DoctorListItem item) {
+        for (int i = 0; i < listeners.size(); ++i) {
+            listeners.get(i).onDoctorItemSelected(item);
+        }
+        dismiss();
+    }
+    //endregion
 
     @Override
     public void onStart()
@@ -47,27 +75,16 @@ public class DoctorListFragment extends DialogFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.popup_appointment_doctor, container, false);
+        View view = inflater.inflate(R.layout.popup_appointment_doctor, container, false);
 
-        //the appointment list
-        listView = (ListView) rootView.findViewById(R.id.list_doctor);
-        arrayList = new ArrayList<DoctorItem>();
-        adapter = new DoctorListAdapter(getContext(), R.layout.generic_person_item, arrayList);
-        listView.setAdapter(adapter);
-        listView.setOnItemClickListener(
-                new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        DoctorItem item = arrayList.get(position);
-                        for (int i = 0; i < listeners.size(); ++i) {
-                            listeners.get(i).onDoctorItemSelected(item);
-                        }
-                        dismiss();
-                    }
-                }
-        );
+        listView = new CommonListView(view
+                , getContext()
+                , R.id.list_common
+                , R.layout.generic_person_item
+                , R.id.loading_list
+                , this);
 
-        Button btnClose = (Button) rootView.findViewById(R.id.btn_close);
+        Button btnClose = (Button) view.findViewById(R.id.btn_close);
         btnClose.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
@@ -77,31 +94,38 @@ public class DoctorListFragment extends DialogFragment {
                 }
         );
 
-        return rootView;
+        doGetDoctorList();
+
+        return view;
     }
 
     public void doGetDoctorList() {
+        if (null == listView) {
+            return;
+        }
+
         WebServices services = new WebServices();
         Call<DoctorListModel> call = services.getServices().doGetDoctors();
+        listView.beginRetrieveList();
         call.enqueue(new Callback<DoctorListModel>() {
             @Override
             public void onResponse(Call<DoctorListModel> call, Response<DoctorListModel> response) {
                 boolean shouldUpdateList = response.body().Status;
                 if (shouldUpdateList) {
-                    arrayList.clear();
+                    listView.clearListView();
                     for (int i = 0; i < response.body().Doctors.size(); ++i) {
                         DoctorModel drModel = response.body().Doctors.get(i);
-                        arrayList.add(
-                                new DoctorItem(drModel.Id, drModel.Person.Name)
+                        listView.addListItem(
+                                new DoctorListItem(drModel.Id, drModel.Person.Name)
                         );
                     }
-                    adapter.notifyDataSetChanged();
                 }
+                listView.endRetrieveList();
             }
 
             @Override
             public void onFailure(Call<DoctorListModel> call, Throwable t) {
-
+                listView.endRetrieveList();
             }
         });
     }

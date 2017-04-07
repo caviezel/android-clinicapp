@@ -32,11 +32,8 @@
                 android:backgroundTint="@color/colorPrimaryDark" />
         </FrameLayout>
 
-        <ListView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/list_doctor"
-            android:dividerHeight="5dp" />
+        <include layout="@layout/list_common" />
+
     </LinearLayout>
 
 </FrameLayout>

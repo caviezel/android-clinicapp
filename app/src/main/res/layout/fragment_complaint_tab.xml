@@ -8,7 +8,7 @@
     <!-- TODO: Update blank fragment layout -->
 
     <Button
-        android:id="@+id/btn_create_appointment"
+        android:id="@+id/btn_create_complaint"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_marginBottom="5dp"
@@ -16,7 +16,7 @@
         android:layout_marginRight="5dp"
         android:layout_marginTop="5dp"
         android:background="@color/colorPrimaryDark"
-        android:text="Create a New Appointment"
+        android:text="Create a New Complaint"
         android:textColor="@android:color/background_light"
         android:textSize="18sp"
         android:textStyle="normal|bold"

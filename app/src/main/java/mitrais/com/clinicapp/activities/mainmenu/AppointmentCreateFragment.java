@@ -19,6 +19,7 @@ import mitrais.com.clinicapp.R;
 import mitrais.com.clinicapp.rest.models.CoreModel;
 import mitrais.com.clinicapp.rest.models.StatusResponseModel;
 import mitrais.com.clinicapp.rest.services.WebServices;
+import mitrais.com.clinicapp.utils.TimePickerUtil;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -38,8 +39,9 @@ public class AppointmentCreateFragment extends DialogFragment implements Calenda
     CalendarView calendarView;
     TimePicker timePicker;
     DoctorListFragment doctorListFragment;
-    DoctorItem selectedDoctor;
+    DoctorListItem selectedDoctor;
     IAppointmentCreateListener listener;
+    TimePickerUtil timePickerUtil;
 
     @Override
     public void onStart() {
@@ -57,9 +59,12 @@ public class AppointmentCreateFragment extends DialogFragment implements Calenda
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.popup_appointment_create, container, false);
 
+        timePickerUtil = new TimePickerUtil(15);
         timePicker = (TimePicker) rootView.findViewById(R.id.timepicker);
         timePicker.setOnTimeChangedListener(this);
         timePicker.setDescendantFocusability(TimePicker.FOCUS_BLOCK_DESCENDANTS);
+        timePickerUtil.setTimePickerInterval(timePicker);
+
         calendarView = (CalendarView) rootView.findViewById(R.id.calendar);
         calendarView.setOnDateChangeListener(this);
 
@@ -88,7 +93,7 @@ public class AppointmentCreateFragment extends DialogFragment implements Calenda
                     }
                 }
         );
-        btnTime.setText(timePicker.getCurrentHour()+":"+String.format("%02d",timePicker.getCurrentMinute()));
+        btnTime.setText(timePicker.getCurrentHour()+":45");
 
         Button btnClose = (Button) rootView.findViewById(R.id.btn_close);
         btnClose.setOnClickListener(
@@ -135,11 +140,11 @@ public class AppointmentCreateFragment extends DialogFragment implements Calenda
     }
 
     public void onTimeChanged(TimePicker view, int hourOfDay, int minute) {
-        String newTime = hourOfDay + ":" + String.format("%02d", minute);
+        String newTime = hourOfDay + ":" + String.format("%02d", minute * timePickerUtil.Interval);
         btnTime.setText(newTime);
     }
 
-    public void onDoctorItemSelected(DoctorItem item) {
+    public void onDoctorItemSelected(DoctorListItem item) {
         selectedDoctor = item;
         btnSelectDoctor.setText(selectedDoctor.Name);
     }
