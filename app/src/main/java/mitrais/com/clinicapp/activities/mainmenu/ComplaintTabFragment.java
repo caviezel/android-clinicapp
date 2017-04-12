@@ -6,9 +6,9 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import mitrais.com.clinicapp.R;
@@ -17,13 +17,15 @@ import mitrais.com.clinicapp.rest.models.ComplaintModel;
 import mitrais.com.clinicapp.rest.models.CoreModel;
 import mitrais.com.clinicapp.rest.models.CredentialsModel;
 import mitrais.com.clinicapp.rest.services.WebServices;
-import mitrais.com.common.ui.BasicInfoBuilder;
-import mitrais.com.common.ui.CommonButtonData;
-import mitrais.com.common.ui.CommonInfoFragment;
-import mitrais.com.common.ui.CommonListView;
-import mitrais.com.common.ui.ICommonInfoFragment;
-import mitrais.com.common.ui.ICommonInfoListener;
-import mitrais.com.common.ui.ICommonListListener;
+import mitrais.com.common.ui.popup.PopupBuilder;
+import mitrais.com.common.ui.popup.PopupButtonData;
+import mitrais.com.common.ui.popup.PopupFragment;
+import mitrais.com.common.ui.popup.IPopupFragment;
+import mitrais.com.common.ui.popup.IPopupListener;
+import mitrais.com.common.ui.listview.ICustomListItemModel;
+import mitrais.com.common.ui.listview.ICustomListListener;
+import mitrais.com.common.ui.listview.CustomListView;
+import mitrais.com.common.ui.listview.OnLoadViewData;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -39,12 +41,12 @@ class ComplaintListItem {
     }
 }
 
-public class ComplaintTabFragment extends Fragment implements ICommonListListener<ComplaintListItem>, ICommonInfoListener<ComplaintListItem> {
-    private CommonListView<ComplaintListItem> listView;
+public class ComplaintTabFragment extends Fragment implements ICustomListListener, IPopupListener<ComplaintListItem> {
+    private CustomListView<ComplaintListItem> listView;
 
-    //region ICommonInfoListener
-    public void onBuildCommonInfo(ComplaintListItem item, View view, ICommonInfoFragment fragment) {
-        BasicInfoBuilder infoBuilder = new BasicInfoBuilder(
+    //region IPopupListener
+    public void onBuildCommonInfo(ComplaintListItem item, View view, IPopupFragment fragment) {
+        PopupBuilder infoBuilder = new PopupBuilder(
                 view
                 , fragment
                 , R.drawable.complaint_icon
@@ -52,41 +54,41 @@ public class ComplaintTabFragment extends Fragment implements ICommonListListene
                 , item.Description
         );
     }
+
     public void onCloseCommonInfo() {
 
     }
     //endregion
 
-    //region ICommonListListener
-    public void setListViewItem(View view, ComplaintListItem item) {
-        if (null != view) {
-            TextView tDesc = (TextView) view.findViewById(R.id.txt_compaint_desc);
-            if (null != tDesc ) {
-                tDesc.setText(item.Description);
-            }
-        }
+    //region ICustomListListener
+    public <T> View buildListItemView(View view, T item) {
+        OnClinicListItemBuilder listItemBuilder = new OnClinicListItemBuilder(view, (ComplaintListItem)item);
+        return view;
     }
 
-    public void onItemSelected(ComplaintListItem item) {
-        CommonInfoFragment infoFragment = new CommonInfoFragment();
-        infoFragment.setCommonInfoData(R.layout.popup_common_info, item)
-                .setListener(this)
-                .setCloseButton("CANCEL")
-                .setButton(new CommonButtonData(
-                "DO SOMETHING"
-                , R.color.colorPrimary
-                , new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        Context context = getContext();
-                        CharSequence text = "Coming Soon";
-                        int duration = Toast.LENGTH_SHORT;
+    public <T> void onItemSelected(T item) {
+        ComplaintListItem complaintListItem = (ComplaintListItem) item;
+        if (null != complaintListItem) {
+            PopupFragment infoFragment = new PopupFragment();
+            infoFragment.setCommonInfoData(R.layout.popup_common_info, complaintListItem)
+                    .setListener(this)
+                    .setCloseButton("CANCEL")
+                    .setButton(new PopupButtonData(
+                            "DO SOMETHING"
+                            , R.color.colorPrimary
+                            , new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            Context context = getContext();
+                            CharSequence text = "Coming Soon";
+                            int duration = Toast.LENGTH_SHORT;
 
-                        Toast toast = Toast.makeText(context, text, duration);
-                        toast.show();
-                    }
-                }));
-        infoFragment.show(getChildFragmentManager(), null);
+                            Toast toast = Toast.makeText(context, text, duration);
+                            toast.show();
+                        }
+                    }));
+            infoFragment.show(getChildFragmentManager(), null);
+        }
     }
     //endregion
 
@@ -95,13 +97,17 @@ public class ComplaintTabFragment extends Fragment implements ICommonListListene
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_complaint_tab, container, false);
 
-        //the appointment list
-        listView = new CommonListView(view
+        List<OnLoadViewData> onLoadViewDatas = new ArrayList<>();
+        onLoadViewDatas.add(new OnLoadViewData(R.id.list_common, false));
+        onLoadViewDatas.add(new OnLoadViewData(R.id.loading_list, true));
+
+        listView = new CustomListView(view
                 , getContext()
                 , R.id.list_common
                 , R.layout.complaint_list_item
-                , R.id.loading_list
-                , this);
+                , this
+                , onLoadViewDatas
+        );
 
         return view;
     }
@@ -118,7 +124,7 @@ public class ComplaintTabFragment extends Fragment implements ICommonListListene
         WebServices webServices = new WebServices();
         Call<ComplaintListModel> call = webServices.getServices().doGetComplaints(credentials.Id);
 
-        listView.beginRetrieveList();
+        listView.beginLoadListView();
 
         call.enqueue(new Callback<ComplaintListModel>() {
             @Override
@@ -126,14 +132,25 @@ public class ComplaintTabFragment extends Fragment implements ICommonListListene
                 listView.clearListView();
                 List<ComplaintModel> models = response.body().Complaints;
                 for (int i = 0; i < models.size(); ++i) {
-                    listView.addListItem(new ComplaintListItem(models.get(i).Description));
+                    final ComplaintModel curModel = models.get(i);
+                    listView.addListItem(new ICustomListItemModel<ComplaintListItem>() {
+                        @Override
+                        public ComplaintListItem getListItemModel() {
+                            return new ComplaintListItem(curModel.Description);
+                        }
+
+                        @Override
+                        public int getListItemLayoutId() {
+                            return R.layout.complaint_list_item;
+                        }
+                    });
                 }
-                listView.endRetrieveList();
+                listView.endLoadListView();
             }
 
             @Override
             public void onFailure(Call<ComplaintListModel> call, Throwable t) {
-                listView.endRetrieveList();
+                listView.endLoadListView();
             }
         });
     }

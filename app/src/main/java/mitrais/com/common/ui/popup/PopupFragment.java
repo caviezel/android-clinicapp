@@ -1,4 +1,4 @@
-package mitrais.com.common.ui;
+package mitrais.com.common.ui.popup;
 
 import android.app.Dialog;
 import android.os.Bundle;
@@ -17,13 +17,13 @@ import mitrais.com.clinicapp.R;
  * Created by mtmac20 on 4/4/17.
  */
 
-public class CommonInfoFragment<T> extends DialogFragment implements ICommonInfoFragment {
-    ICommonInfoListener listener;
+public final class PopupFragment<T> extends DialogFragment implements IPopupFragment {
+    IPopupListener listener;
     int layoutId;
     T data;
-    List<CommonButtonData> btnDatas = new ArrayList<CommonButtonData>();
+    List<PopupButtonData> btnDatas = new ArrayList<PopupButtonData>();
     //separate the close btn data to ensure that the close btn will be added to the last in the group
-    CommonButtonData btnCloseData;
+    PopupButtonData btnCloseData;
 
     @Override
     public void onStart()
@@ -45,17 +45,18 @@ public class CommonInfoFragment<T> extends DialogFragment implements ICommonInfo
         LinearLayout btnLayout = (LinearLayout) rootView.findViewById(R.id.commoninfo_btn_group);
         for (int i = 0; i < btnDatas.size(); ++i) {
             View btnView = inflater.inflate(R.layout.button_common, container,false);
-            CommonButton btn = new CommonButton(btnView, btnDatas.get(i));
+            PopupButton btn = new PopupButton(btnView, btnDatas.get(i));
             btnLayout.addView(btnView);
         }
         if (null != btnCloseData) {
             View btnView = inflater.inflate(R.layout.button_common, container,false);
-            CommonButton btn = new CommonButton(btnView, btnCloseData);
+            PopupButton btn = new PopupButton(btnView, btnCloseData);
             btnLayout.addView(btnView);
         }
         if (null != listener) {
             listener.onBuildCommonInfo(data, rootView, this);
         }
+//        rootView.setClipToOutline(true);
         return rootView;
     }
 
@@ -66,24 +67,24 @@ public class CommonInfoFragment<T> extends DialogFragment implements ICommonInfo
         }
     }
 
-    public CommonInfoFragment<T> setCommonInfoData(int theLayoutId, T theData) {
+    public PopupFragment<T> setCommonInfoData(int theLayoutId, T theData) {
         layoutId = theLayoutId;
         data = theData;
         return this;
     }
 
-    public CommonInfoFragment<T> setListener(ICommonInfoListener l) {
+    public PopupFragment<T> setListener(IPopupListener l) {
         listener = l;
         return this;
     }
 
-    public CommonInfoFragment<T> setButton(CommonButtonData btnData) {
+    public PopupFragment<T> setButton(PopupButtonData btnData) {
         btnDatas.add(btnData);
         return this;
     }
 
-    public CommonInfoFragment<T> setCloseButton(String txt) {
-        btnCloseData = new CommonButtonData(
+    public PopupFragment<T> setCloseButton(String txt) {
+        btnCloseData = new PopupButtonData(
                 txt
                 , R.color.colorButtonRed
                 , new View.OnClickListener() {

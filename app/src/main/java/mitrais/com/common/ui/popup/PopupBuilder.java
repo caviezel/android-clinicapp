@@ -1,4 +1,4 @@
-package mitrais.com.common.ui;
+package mitrais.com.common.ui.popup;
 
 import android.view.View;
 import android.widget.ImageView;
@@ -10,8 +10,8 @@ import mitrais.com.clinicapp.R;
  * Created by mtmac20 on 4/7/17.
  */
 
-public class BasicInfoBuilder {
-    public BasicInfoBuilder(View view, final ICommonInfoFragment fragment, int iconId, String title, String description) {
+public final class PopupBuilder {
+    public PopupBuilder(View view, final IPopupFragment fragment, int iconId, String title, String description) {
         ImageView imgView = (ImageView) view.findViewById(R.id.cominfo_img_icon);
         imgView.setImageResource(iconId);
 

@@ -12,7 +12,7 @@ import java.util.List;
  * Created by mtmac20 on 4/6/17.
  */
 
-public class TimePickerUtil {
+public final class TimePickerUtil {
     public int Interval;
 
     public TimePickerUtil(int interval) {

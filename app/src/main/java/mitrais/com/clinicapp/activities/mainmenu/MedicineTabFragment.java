@@ -7,18 +7,21 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import mitrais.com.clinicapp.R;
 import mitrais.com.clinicapp.rest.models.MedicineListModel;
 import mitrais.com.clinicapp.rest.models.MedicineModel;
 import mitrais.com.clinicapp.rest.services.WebServices;
-import mitrais.com.common.ui.BasicInfoBuilder;
-import mitrais.com.common.ui.CommonInfoFragment;
-import mitrais.com.common.ui.CommonListView;
-import mitrais.com.common.ui.ICommonInfoFragment;
-import mitrais.com.common.ui.ICommonInfoListener;
-import mitrais.com.common.ui.ICommonListListener;
+import mitrais.com.common.ui.listview.CustomListView;
+import mitrais.com.common.ui.listview.ICustomListItemModel;
+import mitrais.com.common.ui.listview.ICustomListListener;
+import mitrais.com.common.ui.listview.OnLoadViewData;
+import mitrais.com.common.ui.popup.IPopupFragment;
+import mitrais.com.common.ui.popup.IPopupListener;
+import mitrais.com.common.ui.popup.PopupBuilder;
+import mitrais.com.common.ui.popup.PopupFragment;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -36,12 +39,12 @@ class MedicineListItem {
     }
 }
 
-public class MedicineTabFragment extends Fragment implements ICommonListListener<MedicineListItem>, ICommonInfoListener<MedicineListItem> {
-    private CommonListView<MedicineListItem> listView;
+public class MedicineTabFragment extends Fragment implements ICustomListListener, IPopupListener<MedicineListItem> {
+    private CustomListView<MedicineListItem> listView;
 
-    //region ICommonInfoListener
-    public void onBuildCommonInfo(MedicineListItem item, View view, ICommonInfoFragment fragment) {
-        BasicInfoBuilder infoBuilder = new BasicInfoBuilder(
+    //region IPopupListener
+    public void onBuildCommonInfo(MedicineListItem item, View view, IPopupFragment fragment) {
+        PopupBuilder infoBuilder = new PopupBuilder(
                 view
                 , fragment
                 , R.drawable.medicine_icon
@@ -54,22 +57,27 @@ public class MedicineTabFragment extends Fragment implements ICommonListListener
     }
     //endregion
 
-    //region ICommonListListener
-    public void setListViewItem(View view, MedicineListItem item) {
-        if (null != view) {
+    //region ICustomListListener
+    public <T> View buildListItemView(View view, T item) {
+        MedicineListItem medicineListItem = (MedicineListItem) item;
+        if (null != medicineListItem) {
             TextView tPatient = (TextView) view.findViewById(R.id.txt_medicine_name);
             if (null != tPatient ) {
-                tPatient.setText(item.Name);
+                tPatient.setText(medicineListItem.Name);
             }
         }
+        return view;
     }
 
-    public void onItemSelected(MedicineListItem item) {
-        CommonInfoFragment infoFragment = new CommonInfoFragment();
-        infoFragment.setCommonInfoData(R.layout.popup_common_info, item)
-                .setListener(this)
-                .setCloseButton("OK");
-        infoFragment.show(getChildFragmentManager(), null);
+    public <T> void onItemSelected(T item) {
+        MedicineListItem medicineListItem = (MedicineListItem) item;
+        if (null != medicineListItem) {
+            PopupFragment infoFragment = new PopupFragment();
+            infoFragment.setCommonInfoData(R.layout.popup_common_info, medicineListItem)
+                    .setListener(this)
+                    .setCloseButton("OK");
+            infoFragment.show(getChildFragmentManager(), null);
+        }
     }
     //endregion
 
@@ -78,13 +86,17 @@ public class MedicineTabFragment extends Fragment implements ICommonListListener
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_medicine_tab, container, false);
 
-        //the appointment list
-        listView = new CommonListView(view
+        List<OnLoadViewData> onLoadViewDatas = new ArrayList<>();
+        onLoadViewDatas.add(new OnLoadViewData(R.id.list_common, false));
+        onLoadViewDatas.add(new OnLoadViewData(R.id.loading_list, true));
+
+        listView = new CustomListView(view
                 , getContext()
                 , R.id.list_common
                 , R.layout.medicine_list_item
-                , R.id.loading_list
-                , this);
+                , this
+                , onLoadViewDatas
+        );
 
         return view;
     }
@@ -100,7 +112,7 @@ public class MedicineTabFragment extends Fragment implements ICommonListListener
         WebServices webServices = new WebServices();
         Call<MedicineListModel> call = webServices.getServices().doGetMedicines();
 
-        listView.beginRetrieveList();
+        listView.beginLoadListView();
 
         call.enqueue(new Callback<MedicineListModel>() {
             @Override
@@ -108,17 +120,27 @@ public class MedicineTabFragment extends Fragment implements ICommonListListener
                 listView.clearListView();
                 List<MedicineModel> medicineModels = response.body().Medicines;
                 for (int i = 0; i < medicineModels.size(); ++i) {
-                    listView.addListItem(new MedicineListItem(
-                            medicineModels.get(i).Name
-                            , Integer.toString(medicineModels.get(i).Quantity)
-                    ));
+                    final MedicineModel medicineModel = medicineModels.get(i);
+
+                    listView.addListItem(new ICustomListItemModel<MedicineListItem>() {
+                        @Override
+                        public MedicineListItem getListItemModel() {
+                            return new MedicineListItem(medicineModel.Name
+                                    , Integer.toString(medicineModel.Quantity));
+                        }
+
+                        @Override
+                        public int getListItemLayoutId() {
+                            return R.layout.medicine_list_item;
+                        }
+                    });
                 }
-                listView.endRetrieveList();
+                listView.endLoadListView();
             }
 
             @Override
             public void onFailure(Call<MedicineListModel> call, Throwable t) {
-                listView.endRetrieveList();
+                listView.endLoadListView();
             }
 
         });

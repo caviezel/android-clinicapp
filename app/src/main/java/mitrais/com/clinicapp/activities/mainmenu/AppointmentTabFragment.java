@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -20,12 +21,14 @@ import mitrais.com.clinicapp.rest.models.CoreModel;
 import mitrais.com.clinicapp.rest.models.CredentialsModel;
 import mitrais.com.clinicapp.rest.models.PersonModel;
 import mitrais.com.clinicapp.rest.services.WebServices;
-import mitrais.com.common.ui.BasicInfoBuilder;
-import mitrais.com.common.ui.CommonInfoFragment;
-import mitrais.com.common.ui.CommonListView;
-import mitrais.com.common.ui.ICommonInfoFragment;
-import mitrais.com.common.ui.ICommonInfoListener;
-import mitrais.com.common.ui.ICommonListListener;
+import mitrais.com.common.ui.listview.CustomListView;
+import mitrais.com.common.ui.listview.ICustomListItemModel;
+import mitrais.com.common.ui.listview.ICustomListListener;
+import mitrais.com.common.ui.listview.OnLoadViewData;
+import mitrais.com.common.ui.popup.IPopupFragment;
+import mitrais.com.common.ui.popup.IPopupListener;
+import mitrais.com.common.ui.popup.PopupBuilder;
+import mitrais.com.common.ui.popup.PopupFragment;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -45,12 +48,12 @@ class AppointmentListItem {
     }
 }
 
-public class AppointmentTabFragment extends Fragment implements IAppointmentCreateListener, IAppointmentConfirmListener, ICommonListListener<AppointmentListItem>, ICommonInfoListener<AppointmentListItem> {
-    private CommonListView<AppointmentListItem> listView;
+public class AppointmentTabFragment extends Fragment implements IAppointmentCreateListener, IAppointmentConfirmListener, ICustomListListener, IPopupListener<AppointmentListItem> {
+    private CustomListView<AppointmentListItem> listView;
 
-    //region ICommonInfoListener
-    public void onBuildCommonInfo(AppointmentListItem item, View view, ICommonInfoFragment fragment) {
-        BasicInfoBuilder infoBuilder = new BasicInfoBuilder(
+    //region IPopupListener
+    public void onBuildCommonInfo(AppointmentListItem item, View view, IPopupFragment fragment) {
+        PopupBuilder infoBuilder = new PopupBuilder(
                 view
                 , fragment
                 , R.drawable.borat_icon
@@ -63,31 +66,35 @@ public class AppointmentTabFragment extends Fragment implements IAppointmentCrea
     }
     //endregion
 
-    //region ICommonListListener
-    public void setListViewItem(View view, AppointmentListItem item) {
-        if (null != view) {
+    //region ICustomListListener
+    public <T> View buildListItemView(View view, T item) {
+        AppointmentListItem appointmentListItem = (AppointmentListItem) item;
+        if (null != appointmentListItem) {
             TextView tPatient = (TextView) view.findViewById(R.id.txt_person_name);
             if (null != tPatient) {
-                tPatient.setText(item.EditedPersonName);
+                tPatient.setText(appointmentListItem.EditedPersonName);
             }
             TextView tDate = (TextView) view.findViewById(R.id.txt_date);
             if (null != tDate) {
-                tDate.setText(item.Date);
+                tDate.setText(appointmentListItem.Date);
             }
             TextView tHour = (TextView) view.findViewById(R.id.txt_hour);
             if (null != tHour) {
-                tHour.setText(item.Hour);
+                tHour.setText(appointmentListItem.Hour);
             }
             TextView tStatus = (TextView) view.findViewById(R.id.txt_status);
             if (null != tStatus) {
-                tStatus.setText(item.Status);
+                tStatus.setText(appointmentListItem.Status);
             }
         }
+        return view;
     }
 
-    public void onItemSelected(AppointmentListItem item) {
-        CommonInfoFragment infoFragment = new CommonInfoFragment();
-        infoFragment.setCommonInfoData(R.layout.popup_common_info, item)
+
+    public <T> void onItemSelected(T item) {
+        AppointmentListItem appointmentListItem = (AppointmentListItem) item;
+        PopupFragment infoFragment = new PopupFragment();
+        infoFragment.setCommonInfoData(R.layout.popup_common_info, appointmentListItem)
                 .setCloseButton("OK")
                 .setListener(this);
         infoFragment.show(getChildFragmentManager(), null);
@@ -98,12 +105,18 @@ public class AppointmentTabFragment extends Fragment implements IAppointmentCrea
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_appointment_tab, container, false);
-        listView = new CommonListView(view
+
+        List<OnLoadViewData> onLoadViewDatas = new ArrayList<>();
+        onLoadViewDatas.add(new OnLoadViewData(R.id.list_common, false));
+        onLoadViewDatas.add(new OnLoadViewData(R.id.loading_list, true));
+
+        listView = new CustomListView(view
                 , getContext()
                 , R.id.list_common
-                , R.layout.appointment_list_item
-                , R.id.loading_list
-                , this);
+                , R.layout.complaint_list_item
+                , this
+                , onLoadViewDatas
+        );
 
         Button createApptBtn = (Button) view.findViewById(R.id.btn_create_appointment);
         createApptBtn.setOnClickListener(
@@ -148,7 +161,7 @@ public class AppointmentTabFragment extends Fragment implements IAppointmentCrea
         call = role == CredentialsModel.eRole.DOCTOR ? services.getServices().doGetAppointmentListDoctor(credentials.Id) :
                 services.getServices().doGetAppointmentListPatient(credentials.Id);
 
-        listView.beginRetrieveList();
+        listView.beginLoadListView();
 
         call.enqueue(new Callback<AppointmentListModel>() {
                          @Override
@@ -162,8 +175,8 @@ public class AppointmentTabFragment extends Fragment implements IAppointmentCrea
                                  //need to manually reverse the list
                                  for (int i = appts.size() - 1; i >= 0;--i) {
                                      //shows doctor's name if the current role is a patient and vice versa
-                                     String title = "with " + credentials.getRoleTitle();
-                                     PersonModel person = role == CredentialsModel.eRole.DOCTOR ? appts.get(i).Patient.Person : appts.get(i).Doctor.Person;
+                                     final AppointmentModel appointmentModel = appts.get(i);
+                                     final PersonModel person = role == CredentialsModel.eRole.DOCTOR ? appointmentModel.Patient.Person : appointmentModel.Doctor.Person;
 
                                      Date originDate = new Date();
                                      try {
@@ -172,26 +185,36 @@ public class AppointmentTabFragment extends Fragment implements IAppointmentCrea
                                          e.printStackTrace();
                                      }
 
-                                     String formattedDate = new SimpleDateFormat("EEE, MMM d, ''yy").format(originDate);
-                                     String formattedHour = new SimpleDateFormat("h:mm a").format(originDate);
+                                     final String formattedDate = new SimpleDateFormat("EEE, MMM d, ''yy").format(originDate);
+                                     final String formattedHour = new SimpleDateFormat("h:mm a").format(originDate);
 
-                                     title += person.Name;
+                                     final String title = "with " + credentials.getRoleTitle() + person.Name;
 
-                                     listView.addListItem(new AppointmentListItem(
-                                             title
-                                             , person.Name
-                                             , formattedDate
-                                             , formattedHour
-                                             , appts.get(i).Status
-                                     ));
+                                     listView.addListItem(new ICustomListItemModel<AppointmentListItem>() {
+                                         @Override
+                                         public AppointmentListItem getListItemModel() {
+                                             return new AppointmentListItem(
+                                                     title
+                                                     , person.Name
+                                                     , formattedDate
+                                                     , formattedHour
+                                                     , appointmentModel.Status
+                                             );
+                                         }
+
+                                         @Override
+                                         public int getListItemLayoutId() {
+                                             return R.layout.appointment_list_item;
+                                         }
+                                     });
                                  }
                              }
-                             listView.endRetrieveList();
+                             listView.endLoadListView();
                          }
 
                          @Override
                          public void onFailure(Call<AppointmentListModel> call, Throwable t) {
-                             listView.endRetrieveList();
+                             listView.endLoadListView();
                          }
                      }
         );

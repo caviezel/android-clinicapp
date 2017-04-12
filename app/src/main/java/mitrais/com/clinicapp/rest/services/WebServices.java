@@ -15,6 +15,7 @@ public class WebServices {
         retrofit = new Retrofit.Builder()
                 .baseUrl("http://172.19.11.170:8080/clinic/web/v1/")
 //                .baseUrl("http://172.19.11.20:8080/clinic/web/v1/")
+//                .baseUrl("http://172.19.11.35:8080/clinic/web/v1/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 

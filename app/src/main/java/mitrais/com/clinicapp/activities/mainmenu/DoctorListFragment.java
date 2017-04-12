@@ -16,8 +16,10 @@ import mitrais.com.clinicapp.R;
 import mitrais.com.clinicapp.rest.models.DoctorListModel;
 import mitrais.com.clinicapp.rest.models.DoctorModel;
 import mitrais.com.clinicapp.rest.services.WebServices;
-import mitrais.com.common.ui.CommonListView;
-import mitrais.com.common.ui.ICommonListListener;
+import mitrais.com.common.ui.listview.CustomListView;
+import mitrais.com.common.ui.listview.ICustomListItemModel;
+import mitrais.com.common.ui.listview.ICustomListListener;
+import mitrais.com.common.ui.listview.OnLoadViewData;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -39,23 +41,28 @@ class DoctorListItem {
     }
 }
 
-public class DoctorListFragment extends DialogFragment implements ICommonListListener<DoctorListItem> {
-    private CommonListView<DoctorListItem> listView;
+public class DoctorListFragment extends DialogFragment implements ICustomListListener {
+    private CustomListView<DoctorListItem> listView;
     private List<IDoctorListListener> listeners = new ArrayList<IDoctorListListener>();
 
-    //region ICommonListListener
-    public void setListViewItem(View view, DoctorListItem item) {
-        if (null != view) {
+    //region ICustomListListener
+    public <T> View buildListItemView(View view, T item) {
+        DoctorListItem doctorListItem = (DoctorListItem) item;
+        if (null != doctorListItem) {
             TextView tName = (TextView) view.findViewById(R.id.txt_person_name);
             if (null != tName) {
-                tName.setText(item.Name);
+                tName.setText(doctorListItem.Name);
             }
         }
+        return view;
     }
 
-    public void onItemSelected(DoctorListItem item) {
-        for (int i = 0; i < listeners.size(); ++i) {
-            listeners.get(i).onDoctorItemSelected(item);
+    public <T> void onItemSelected(T item) {
+        DoctorListItem doctorListItem = (DoctorListItem) item;
+        if (null != doctorListItem) {
+            for (int i = 0; i < listeners.size(); ++i) {
+                listeners.get(i).onDoctorItemSelected(doctorListItem);
+            }
         }
         dismiss();
     }
@@ -79,12 +86,17 @@ public class DoctorListFragment extends DialogFragment implements ICommonListLis
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.popup_appointment_doctor, container, false);
 
-        listView = new CommonListView(view
+        List<OnLoadViewData> onLoadViewDatas = new ArrayList<>();
+        onLoadViewDatas.add(new OnLoadViewData(R.id.list_common, false));
+        onLoadViewDatas.add(new OnLoadViewData(R.id.loading_list, true));
+
+        listView = new CustomListView(view
                 , getContext()
                 , R.id.list_common
                 , R.layout.generic_person_item
-                , R.id.loading_list
-                , this);
+                , this
+                , onLoadViewDatas
+        );
 
         Button btnClose = (Button) view.findViewById(R.id.btn_close);
         btnClose.setOnClickListener(
@@ -108,7 +120,7 @@ public class DoctorListFragment extends DialogFragment implements ICommonListLis
 
         WebServices services = new WebServices();
         Call<DoctorListModel> call = services.getServices().doGetDoctors();
-        listView.beginRetrieveList();
+        listView.beginLoadListView();
         call.enqueue(new Callback<DoctorListModel>() {
             @Override
             public void onResponse(Call<DoctorListModel> call, Response<DoctorListModel> response) {
@@ -116,18 +128,27 @@ public class DoctorListFragment extends DialogFragment implements ICommonListLis
                 if (shouldUpdateList) {
                     listView.clearListView();
                     for (int i = 0; i < response.body().Doctors.size(); ++i) {
-                        DoctorModel drModel = response.body().Doctors.get(i);
-                        listView.addListItem(
-                                new DoctorListItem(drModel.Id, drModel.Person.Name)
-                        );
+                        final DoctorModel drModel = response.body().Doctors.get(i);
+
+                        listView.addListItem(new ICustomListItemModel<DoctorListItem>() {
+                            @Override
+                            public DoctorListItem getListItemModel() {
+                                return new DoctorListItem(drModel.Id, drModel.Person.Name);
+                            }
+
+                            @Override
+                            public int getListItemLayoutId() {
+                                return R.layout.generic_person_item;
+                            }
+                        });
                     }
                 }
-                listView.endRetrieveList();
+                listView.endLoadListView();
             }
 
             @Override
             public void onFailure(Call<DoctorListModel> call, Throwable t) {
-                listView.endRetrieveList();
+                listView.endLoadListView();
             }
         });
     }

@@ -1,4 +1,4 @@
-package mitrais.com.common.ui;
+package mitrais.com.common.ui.tabfragment;
 
 import android.support.v4.app.Fragment;
 

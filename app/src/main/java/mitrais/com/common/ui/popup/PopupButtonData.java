@@ -1,4 +1,4 @@
-package mitrais.com.common.ui;
+package mitrais.com.common.ui.popup;
 
 import android.view.View;
 
@@ -6,11 +6,11 @@ import android.view.View;
  * Created by mtmac20 on 4/7/17.
  */
 
-public class CommonButtonData {
+public final class PopupButtonData {
     String Text;
     int ColorId;
     View.OnClickListener OnClick;
-    public CommonButtonData(String text, int colorId, View.OnClickListener onClick) {
+    public PopupButtonData(String text, int colorId, View.OnClickListener onClick) {
         Text = text;
         ColorId = colorId;
         OnClick = onClick;

@@ -39,7 +39,6 @@ public interface ClinicApiServices {
     Call<DoctorListModel> doGetDoctors(
     );
 
-
     @FormUrlEncoded
     @POST("appointment/create")
     Call<StatusResponseModel> doCreateAppointment(
