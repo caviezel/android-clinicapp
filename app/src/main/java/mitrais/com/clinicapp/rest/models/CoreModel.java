@@ -5,31 +5,31 @@ package mitrais.com.clinicapp.rest.models;
  */
 
 public class CoreModel {
-    private static CoreModel m_instance;
+    private static CoreModel instance;
 
-    public LoginModel m_loginModel;
-    public AppointmentListModel m_appointmentListModel;
+    public LoginModel loginModel;
+    public AppointmentListModel appointmentListModel;
 
     public static CoreModel getInstance() {
-        if (null == m_instance) {
-            m_instance = new CoreModel();
+        if (null == instance) {
+            instance = new CoreModel();
         }
-        return  m_instance;
+        return instance;
     }
 
     public  void  setLoginModel(LoginModel loginModel) {
-        m_loginModel = loginModel;
+        this.loginModel = loginModel;
     }
 
     public LoginModel getLoginModel() {
-        return m_loginModel;
+        return loginModel;
     }
 
     public void setAppointmentListModel(AppointmentListModel listModel) {
-        m_appointmentListModel = listModel;
+        appointmentListModel = listModel;
     }
 
     public AppointmentListModel getAppointmentListModel() {
-        return m_appointmentListModel;
+        return appointmentListModel;
     }
 }

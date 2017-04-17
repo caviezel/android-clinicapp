@@ -56,7 +56,6 @@ public final class PopupFragment<T> extends DialogFragment implements IPopupFrag
         if (null != listener) {
             listener.onBuildCommonInfo(data, rootView, this);
         }
-//        rootView.setClipToOutline(true);
         return rootView;
     }
 

@@ -83,7 +83,7 @@ public class MenuTabActivity extends AppCompatActivity {
 
         @Override
         public CharSequence getPageTitle(int position) {
-            return tabFragmentBuilder.getTabTitle(position);
+            return tabFragmentBuilder.getTabTitle(getApplicationContext(), position);
         }
     }
 }

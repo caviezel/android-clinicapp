@@ -1,7 +1,13 @@
 package mitrais.com.clinicapp.activities.mainmenu;
 
+import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.support.v4.app.Fragment;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.ImageSpan;
 
+import mitrais.com.clinicapp.R;
 import mitrais.com.common.ui.tabfragment.ITabFragmentBuilder;
 
 /**
@@ -18,23 +24,37 @@ public class PatientTabBuilder implements ITabFragmentBuilder {
                 ComplaintTabFragment complaintTab = new ComplaintTabFragment();
                 return complaintTab ;
             case 2:
+                MapTabFragment mapTab = new MapTabFragment();
+                return mapTab;
+            case 3:
                 ProfileTabFragment profileTab = new ProfileTabFragment();
                 return profileTab;
         }
         return null;
     }
-    public CharSequence getTabTitle(int pos) {
+    public CharSequence getTabTitle(Context context, int pos) {
+        int drawableId = R.drawable.appointment_icon;
+
         switch (pos) {
-            case 0:
-                return "APPOINTMENT";
             case 1:
-                return "COMPLAINTS";
+                drawableId = R.drawable.msg_icon;
+                break;
             case 2:
-                return "PROFILE";
+                drawableId = R.drawable.map_icon;
+                break;
+            case 3:
+                drawableId = R.drawable.group_icon;
+                break;
         }
-        return null;
+
+        Drawable image = context.getResources().getDrawable(drawableId);
+        image.setBounds(0,0,80, 80);
+        SpannableString sb = new SpannableString(" ");
+        ImageSpan imageSpan = new ImageSpan(image, ImageSpan.ALIGN_BOTTOM);
+        sb.setSpan(imageSpan, 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        return sb;
     }
     public int getTabCount() {
-        return 3;
+        return 4;
     }
 }

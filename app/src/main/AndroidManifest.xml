@@ -23,6 +23,8 @@
             android:name=".activities.mainmenu.MenuTabActivity"
             android:label="@string/title_activity_menu_tab"
             android:theme="@style/AppTheme.NoActionBar"></activity>
+
+        <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyClxz26HBKcJoxsqOQ-CctWrBWwVGbsO_s"/>
     </application>
 
 </manifest>
